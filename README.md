@@ -9,6 +9,8 @@ jadi untuk skrng saya berhenti ngerjain project ini dulu, sampai tembus 20 star.
 kedepan mungkin ane tambahkan fitur seperti support voucher, atau member baru,\
 eits tapi kalo banyak starnya, kalo gk ya ane pake sendiri lah aowkokawk.
 
+<img src="https://user-images.githubusercontent.com/51353996/159115235-bcbeb6dc-8ebf-40d3-a7f0-f3b975e4fb90.jpg" width="600">
+
 # Fitur
 - Dengan tidak mengandalkan webdriver atau selenium, ini dapat membuat bot lebih cepat, ringan, dan support running di android via Termux
 - Gratis ([donasi](#support))
