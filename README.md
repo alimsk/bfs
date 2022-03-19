@@ -1,15 +1,19 @@
 # Disclaimer
 Pembuat bot ini tidak bertanggung jawab jika anda kena banned/blokir shopee.
 
+# Sekedar Info
+**Kalo anda mau saya maintain projectnya, ya minimal star repo ini.**\
+banyak org menggunakan bot ini tapi tidak memberi star repo nya,\
+jadi untuk skrng saya berhenti ngerjain project ini dulu, sampai tembus 20 star. hehe.
+
+kedepan mungkin ane tambahkan fitur seperti support voucher, atau member baru,\
+eits tapi kalo banyak starnya, kalo gk ya ane pake sendiri lah aowkokawk.
+
 # Fitur
 - Dengan tidak mengandalkan webdriver atau selenium, ini dapat membuat bot lebih cepat, ringan, dan support running di android via Termux
 - Gratis ([donasi](#support))
 - Multi akun
 - Interactive CLI
-
-**Kalo anda mau saya maintain projectnya, ya minimal star repo ini.**\
-banyak org menggunakan bot ini tapi tidak memberi star repo nya,\
-jadi untuk skrng saya berhenti ngerjain project ini dulu, sampai tembus 20 star. heheh
 
 # Install
 ### Termux
