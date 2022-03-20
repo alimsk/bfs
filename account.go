@@ -137,7 +137,7 @@ func (m AccountModel) Init() tea.Cmd {
 			usernms := make([]string, 0, len(m.state.Cookies))
 			newcookies := m.state.Cookies[:0]
 			for _, cookie := range m.state.Cookies {
-				c, err := shopee.New(cookie.CookieJar)
+				c, err := shopee.New(cookie.CookieJar, platformOption())
 				if err != nil {
 					return err
 				}
@@ -207,14 +207,7 @@ func login(cookie []byte) tea.Cmd {
 
 		jar, _ := cookiejar.New(nil)
 		jar.SetCookies(shopee.ShopeeUrl, cookies)
-		var platformOpt shopee.Option
-		switch *platform {
-		case "web":
-			platformOpt = shopee.WithWeb
-		case "android":
-			platformOpt = shopee.WithAndroidApp
-		}
-		c, err := shopee.New(jar, platformOpt)
+		c, err := shopee.New(jar, platformOption())
 		if err != nil {
 			return loginResultMsg{err: err}
 		}

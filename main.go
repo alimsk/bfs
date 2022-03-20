@@ -9,6 +9,7 @@ import (
 	"runtime"
 
 	"github.com/alimsk/bfs/navigator"
+	"github.com/alimsk/shopee"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -22,14 +23,22 @@ var (
 	)
 )
 
+func platformOption() shopee.Option {
+	switch *platform {
+	case "web":
+		return shopee.WithWeb
+	case "android":
+		return shopee.WithAndroidApp
+	}
+	return nil
+}
+
 func main() {
 	log.SetFlags(0)
 	flag.Parse()
 
-	switch *platform {
-	case "web", "android":
-	default:
-		log.Fatal("unknown platform:", *platform)
+	if platformOption() == nil {
+		log.Fatal("unknown platform: ", *platform)
 	}
 
 	if runtime.GOOS == "windows" {
