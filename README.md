@@ -2,8 +2,7 @@
 Pembuat bot ini tidak bertanggung jawab jika anda kena banned/blokir shopee.
 
 # Sekedar Info
-**Kalo anda mau saya maintain projectnya, ya minimal star repo ini.**\
-banyak org menggunakan bot ini tapi tidak memberi star repo nya,\
+**banyak org menggunakan bot ini tapi tidak memberi star repo nya.**\
 jadi untuk skrng saya berhenti ngerjain project ini dulu, sampai tembus 20 star. hehe.
 
 kedepan mungkin ane tambahkan fitur seperti support voucher, atau member baru,\
