@@ -14,11 +14,23 @@ import (
 
 var (
 	stateFilename = flag.String("state", "state.json", "state file name")
+	platform      = flag.String("platform", "web",
+		"choose platform, currently supported platforms are:\n"+
+			"  web\n"+
+			"  android\n"+
+			"in most cases, web will work more than others",
+	)
 )
 
 func main() {
 	log.SetFlags(0)
 	flag.Parse()
+
+	switch *platform {
+	case "web", "android":
+	default:
+		log.Fatal("unknown platform:", *platform)
+	}
 
 	if runtime.GOOS == "windows" {
 		// prevent windows auto close cmd

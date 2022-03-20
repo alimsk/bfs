@@ -207,7 +207,14 @@ func login(cookie []byte) tea.Cmd {
 
 		jar, _ := cookiejar.New(nil)
 		jar.SetCookies(shopee.ShopeeUrl, cookies)
-		c, err := shopee.New(jar)
+		var platformOpt shopee.Option
+		switch *platform {
+		case "web":
+			platformOpt = shopee.WithWeb
+		case "android":
+			platformOpt = shopee.WithAndroidApp
+		}
+		c, err := shopee.New(jar, platformOpt)
 		if err != nil {
 			return loginResultMsg{err: err}
 		}
