@@ -16,6 +16,7 @@ type URLModel struct {
 	err      error
 	usernm   string
 	c        shopee.Client
+	win      tea.WindowSizeMsg
 	fetching bool
 }
 
@@ -46,7 +47,7 @@ func (m URLModel) View() string {
 		content = m.input.View()
 	}
 	if m.err != nil {
-		content += "\n\n" + errorStyle.Render("error: "+m.err.Error())
+		content += "\n\n" + errorStyle.Copy().Width(m.win.Width).Render("error: "+m.err.Error())
 	}
 
 	return bold("Masuk sebagai "+blueStyle.Render(m.usernm)) + "\n\n" +
@@ -89,6 +90,8 @@ func (m URLModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.fetching = false
 		m.input.SetValue("")
 		return m, navigator.PushReplacement(NewItemModel(m.c, msg.Item))
+	case tea.WindowSizeMsg:
+		m.win = msg
 	}
 
 	var cmd1, cmd2 tea.Cmd

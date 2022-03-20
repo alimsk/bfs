@@ -32,6 +32,7 @@ func NewItemModel(c shopee.Client, item shopee.Item) ItemModel {
 		tvarfocus: tvarfocus,
 		citem:     shopee.ChooseModelByTierVar(item, tvarfocus),
 		c:         c,
+		focus:     ternary(hasNoVariant(tvars), len(tvars), 0),
 	}
 }
 
@@ -57,7 +58,7 @@ func (m ItemModel) View() string {
 		Padding(0, 1).
 		Render(
 			bold("Model") + "\n" +
-				blueStyle.Render(cm.Name()) + "\n" +
+				blueStyle.Render(ternary(cm.Name() == "", "Tidak ada varian", cm.Name())) + "\n" +
 				bold("Harga: ") + blueStyle.Render(formatPrice(cm.Price())) + "\n" +
 				bold("Stok:  ") + ternary(cm.Stock() != 0, blueStyle, errorStyle).Render(strconv.Itoa(cm.Stock())),
 		),
@@ -93,7 +94,7 @@ func (m ItemModel) View() string {
 	)
 
 	if m.err != nil {
-		b.WriteString("\n" + errorStyle.Render("error: "+m.err.Error()) + "\n")
+		b.WriteString("\n" + errorStyle.Copy().Width(m.win.Width-1).Render("error: "+m.err.Error()) + "\n")
 	}
 
 	return b.String()
@@ -114,8 +115,14 @@ func (m ItemModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.focus = min(len(m.tvars), m.focus+1)
 			}
 		case "up", "w", "shift+tab":
+			if hasNoVariant(m.tvars) {
+				return m, nil
+			}
 			m.focus = max(0, m.focus-1)
 		case "down", "s", "tab":
+			if hasNoVariant(m.tvars) {
+				return m, nil
+			}
 			m.focus = min(len(m.tvars), m.focus+1)
 		case "left", "d":
 			if m.focus < len(m.tvars) {
@@ -132,4 +139,8 @@ func (m ItemModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.win = msg
 	}
 	return m, nil
+}
+
+func hasNoVariant(tvars []shopee.TierVar) bool {
+	return len(tvars) == 1 && len(tvars[0].Options()) == 1
 }

@@ -12,6 +12,7 @@ type PaymentModel struct {
 	item   shopee.CheckoutableItem
 	list   list.Model
 	opts   list.Model
+	win    tea.WindowSizeMsg
 	hasopt bool
 }
 
@@ -41,6 +42,9 @@ func (m PaymentModel) View() string {
 	}
 
 	return bold("Pilih metode pembayaran") + "\n\n" +
+		warnStyle.Copy().
+			Width(m.win.Width-1).
+			Render("Note: beberapa metode pembayaran mungkin tidak tersedia, namun tetap ditampilkan") + "\n\n" +
 		content
 }
 
@@ -81,6 +85,8 @@ func (m PaymentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			}
 		}
+	case tea.WindowSizeMsg:
+		m.win = msg
 	}
 
 	var cmd1, cmd2 tea.Cmd

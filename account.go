@@ -21,6 +21,7 @@ type CookieInputModel struct {
 	spinner spinner.Model
 	input   textinput.Model
 	state   *State
+	win     tea.WindowSizeMsg
 	err     error
 	loading bool
 }
@@ -52,7 +53,7 @@ func (m CookieInputModel) View() string {
 		b.WriteString(m.input.View())
 	}
 	if m.err != nil {
-		b.WriteString("\n\n" + errorStyle.Render("error: "+m.err.Error()) + "\n")
+		b.WriteString("\n\n" + errorStyle.Copy().Width(m.win.Width-1).Render("error: "+m.err.Error()) + "\n")
 	}
 	return b.String()
 }
@@ -84,6 +85,8 @@ func (m CookieInputModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case error:
 		m.err = msg
 		return m, nil
+	case tea.WindowSizeMsg:
+		m.win = msg
 	}
 
 	var cmd1, cmd2 tea.Cmd
@@ -99,6 +102,7 @@ type AccountModel struct {
 	err          error
 	shortcuthelp string
 	cs           []shopee.Client
+	win          tea.WindowSizeMsg
 	initialized  bool
 }
 
@@ -161,7 +165,7 @@ func (m AccountModel) View() string {
 	}
 
 	if m.err != nil {
-		b.WriteString("\n\n" + errorStyle.Render("error: "+m.err.Error()))
+		b.WriteString("\n\n" + errorStyle.Copy().Width(m.win.Width-1).Render("error: "+m.err.Error()))
 	}
 
 	b.WriteString("\n\n" + m.shortcuthelp)
@@ -214,6 +218,24 @@ func login(cookie []byte) tea.Cmd {
 
 func (m AccountModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		if !m.initialized {
+			// do not accept user input on initialization process
+			break
+		}
+		switch msg.String() {
+		case "w":
+			m.list.SetItemFocus(m.list.ItemFocus() - 1)
+		case "s":
+			m.list.SetItemFocus(m.list.ItemFocus() + 1)
+		case "enter":
+			if m.list.ItemFocus() == m.list.Adapter.Len()-1 {
+				m.err = nil
+				return m, navigator.Push(NewCookieInputModel(m.state))
+			}
+			usernm := m.list.Adapter.(SingleLineAdapter)[m.list.ItemFocus()][1]
+			return m, navigator.PushReplacement(NewURLModel(m.cs[m.list.ItemFocus()], usernm))
+		}
 	case accountChooserInitMsg:
 		m.cs = msg.cs
 		m.state.Cookies = msg.cookies
@@ -236,24 +258,8 @@ func (m AccountModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.err = m.state.saveAsFile(*stateFilename)
 	case error:
 		m.err = msg
-	case tea.KeyMsg:
-		if !m.initialized {
-			// do not accept user input on initialization process
-			break
-		}
-		switch msg.String() {
-		case "w":
-			m.list.SetItemFocus(m.list.ItemFocus() - 1)
-		case "s":
-			m.list.SetItemFocus(m.list.ItemFocus() + 1)
-		case "enter":
-			if m.list.ItemFocus() == m.list.Adapter.Len()-1 {
-				m.err = nil
-				return m, navigator.Push(NewCookieInputModel(m.state))
-			}
-			usernm := m.list.Adapter.(SingleLineAdapter)[m.list.ItemFocus()][1]
-			return m, navigator.PushReplacement(NewURLModel(m.cs[m.list.ItemFocus()], usernm))
-		}
+	case tea.WindowSizeMsg:
+		m.win = msg
 	}
 
 	var cmd1, cmd2 tea.Cmd

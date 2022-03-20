@@ -18,6 +18,7 @@ type LogisticModel struct {
 	item      shopee.CheckoutableItem
 	payment   shopee.PaymentChannelData
 	addr      shopee.AddressInfo
+	win       tea.WindowSizeMsg
 	err       error
 	logistics []shopee.LogisticChannelInfo
 }
@@ -66,13 +67,33 @@ func (m LogisticModel) View() string {
 	}
 	b.WriteString("\n\n")
 	if m.err != nil {
-		b.WriteString(errorStyle.Render("error: "+m.err.Error()) + "\n")
+		b.WriteString(errorStyle.Copy().Width(m.win.Width-1).Render("error: "+m.err.Error()) + "\n")
 	}
 	return b.String()
 }
 
 func (m LogisticModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		if m.logistics == nil {
+			// is fetching
+			return m, nil
+		}
+		switch msg.String() {
+		case "w":
+			m.list.SetItemFocus(m.list.ItemFocus() - 1)
+		case "s":
+			m.list.SetItemFocus(m.list.ItemFocus() + 1)
+		case "enter":
+			lc := m.logistics[m.list.ItemFocus()]
+			if m.list.Adapter.(*list.SimpleAdapter).ItemAt(m.list.ItemFocus()).Disabled {
+				return m, nil
+			}
+			return m, navigator.PushAndRemoveUntil(
+				NewIdlingModel(m.c, m.item, m.payment, m.addr, lc),
+				func(int, tea.Model) bool { return false },
+			)
+		}
 	case logisticInitMsg:
 		m.logistics = msg.logistics
 		m.addr = msg.addr
@@ -103,29 +124,11 @@ func (m LogisticModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				func(int, tea.Model) bool { return false },
 			)
 		}
-	case tea.KeyMsg:
-		if m.logistics == nil {
-			// is fetching
-			return m, nil
-		}
-		switch msg.String() {
-		case "w":
-			m.list.SetItemFocus(m.list.ItemFocus() - 1)
-		case "s":
-			m.list.SetItemFocus(m.list.ItemFocus() + 1)
-		case "enter":
-			lc := m.logistics[m.list.ItemFocus()]
-			if m.list.Adapter.(*list.SimpleAdapter).ItemAt(m.list.ItemFocus()).Disabled {
-				return m, nil
-			}
-			return m, navigator.PushAndRemoveUntil(
-				NewIdlingModel(m.c, m.item, m.payment, m.addr, lc),
-				func(int, tea.Model) bool { return false },
-			)
-		}
 	case error:
 		m.err = msg
 		return m, nil
+	case tea.WindowSizeMsg:
+		m.win = msg
 	}
 
 	var cmd1, cmd2 tea.Cmd

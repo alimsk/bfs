@@ -20,21 +20,24 @@ func main() {
 	log.SetFlags(0)
 	flag.Parse()
 
+	if runtime.GOOS == "windows" {
+		// prevent windows auto close cmd
+		defer fmt.Scanln()
+	}
+
 	state, err := loadStateFile(*stateFilename)
 	if errors.Is(err, os.ErrNotExist) {
 		state = &State{}
 	} else if err != nil {
-		log.Fatal(err)
+		log.Print(err)
+		return
 	}
 	defer state.saveAsFile(*stateFilename)
 
 	m := navigator.New(NewAccountModel(state))
 	p := tea.NewProgram(m)
 	if err = p.Start(); err != nil {
-		log.Fatal(err)
-	}
-
-	if runtime.GOOS == "windows" {
-		fmt.Scanln()
+		log.Print(err)
+		return
 	}
 }
