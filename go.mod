@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/alimsk/list v0.0.0-20211218025647-53924f6ba359
-	github.com/alimsk/shopee v0.0.0-20220320043825-eb9b485f2f11
+	github.com/alimsk/shopee v0.0.0-20220320193845-35ce4e346b23
 	github.com/charmbracelet/bubbles v0.10.3
 	github.com/charmbracelet/bubbletea v0.20.0
 	github.com/charmbracelet/lipgloss v0.5.0
