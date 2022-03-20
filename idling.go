@@ -57,7 +57,7 @@ func updateTime() tea.Msg {
 }
 
 func (m IdlingModel) Init() tea.Cmd {
-	return tea.Batch(waitForFS(m.item), m.spinner.Tick, updateTime)
+	return tea.Batch(waitForFS(m.item.Item), m.spinner.Tick, updateTime)
 }
 
 func (m IdlingModel) View() string {
@@ -89,7 +89,7 @@ func (m IdlingModel) View() string {
 
 type checkoutMsg struct{}
 
-func waitForFS(item shopee.CheckoutableItem) tea.Cmd {
+func waitForFS(item shopee.Item) tea.Cmd {
 	return func() tea.Msg {
 		if !item.IsFlashSale() {
 			fsaletime := time.Unix(item.UpcomingFsaleStartTime(), 0)
@@ -106,8 +106,16 @@ func (m IdlingModel) checkout() <-chan tea.Msg {
 	ch := make(chan tea.Msg)
 	go func() {
 		start := time.Now()
+		ch <- statusMsg(blueStyle.Render("Refreshing item"))
+		updateditem, err := m.c.FetchItem(m.item.ShopID(), m.item.ItemID())
+		if err != nil {
+			ch <- err
+			close(ch)
+			return
+		}
 		ch <- statusMsg(blueStyle.Render("Validasi checkout"))
-		err := m.c.ValidateCheckout(m.item)
+		citem := shopee.ChooseModel(updateditem, m.item.ChosenModel().ModelID())
+		err = m.c.ValidateCheckout(citem)
 		if err != nil {
 			ch <- err
 			close(ch)
@@ -116,7 +124,7 @@ func (m IdlingModel) checkout() <-chan tea.Msg {
 		ch <- statusMsg(blueStyle.Render("Checkout get"))
 		params, err := m.c.CheckoutGetQuick(shopee.CheckoutParams{
 			Addr:        m.addr,
-			Item:        m.item,
+			Item:        citem,
 			PaymentData: m.payment,
 			Logistic:    m.logistic,
 		})
