@@ -48,7 +48,7 @@ Star repo ini jika berguna, bisa juga donate ke saya via dana :)
 
 <img src="https://user-images.githubusercontent.com/51353996/158705498-add7da42-1907-43ff-ab80-b2d673f66b3b.png" width="600">
 
-kalo nemu bug atau ingin bertanya, bisa buat issue di halaman [issue](https://github.com/alimsk/bfs/issues/new).
+kalo nemu bug atau ingin bertanya, bisa buat issue di halaman [issue](https://github.com/alimsk/bfs/issues).
 
 # Contribution
 Contributions are welcome.
