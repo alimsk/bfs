@@ -9,37 +9,16 @@ import (
 	"runtime"
 
 	"github.com/alimsk/bfs/navigator"
-	"github.com/alimsk/shopee"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
 var (
 	stateFilename = flag.String("state", "state.json", "state file name")
-	platform      = flag.String("platform", "web",
-		"choose platform, currently supported platforms are:\n"+
-			"  web\n"+
-			"  android\n"+
-			"in most cases, web will work more than others",
-	)
 )
-
-func platformOption() shopee.Option {
-	switch *platform {
-	case "web":
-		return shopee.WithWeb
-	case "android":
-		return shopee.WithAndroidApp
-	}
-	return nil
-}
 
 func main() {
 	log.SetFlags(0)
 	flag.Parse()
-
-	if platformOption() == nil {
-		log.Fatal("unknown platform: ", *platform)
-	}
 
 	if runtime.GOOS == "windows" {
 		// prevent windows auto close cmd

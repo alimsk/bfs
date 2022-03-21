@@ -25,11 +25,6 @@ curl -L https://github.com/alimsk/bfs/releases/latest/download/bfs-android-arm64
 gunakan command yang sama ketika mau update.
 
 ### Linux
-Kalo sudah install golang versi 1.18 keatas, build dari main branch untuk mendapatkan fitur terbarunya.
-```
-go install github.com/alimsk/bfs@main
-```
-kalo belum:
 ```
 curl -L https://github.com/alimsk/bfs/releases/latest/download/bfs-linux-amd64 > bfs && chmod +x bfs
 ```
