@@ -25,8 +25,10 @@ Download file exe nya manual di [release](https://github.com/alimsk/bfs/releases
 
 ### Install dari source
 Dibutuhkan go 1.18
+
+install dari main branch untuk fitur terbaru (sebelum dirilis)
 ```
-go install github.com/alimsk/bfs@latest
+go install github.com/alimsk/bfs@main
 ```
 
 # Cara Pake
