@@ -32,6 +32,8 @@ go install github.com/alimsk/bfs@latest
 # Cara Pake
 Cek [video tutorial](https://youtu.be/1fIKouowm_M)
 
+menggunakan bot juga tidak menjamin akan dapat barang yg dituju, jadi tetep hoki-hokian tapi lebih peluangnya
+
 # Support
 Star repo ini jika berguna, bisa juga donate ke saya via dana :)
 
