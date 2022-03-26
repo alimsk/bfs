@@ -106,7 +106,7 @@ func (m ItemModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "enter":
 			if m.focus == len(m.tvars) {
-				if m.citem.ChosenModel().Stock() == 0 {
+				if !m.citem.HasUpcomingFsale() && m.citem.ChosenModel().Stock() == 0 {
 					m.err = errors.New("stok model kosong")
 					return m, nil
 				}

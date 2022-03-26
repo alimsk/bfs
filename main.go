@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	stateFilename = flag.String("state", "state.json", "state file name")
+	stateFilename = flag.String("state", "bfs_state.json", "state file name")
 )
 
 func main() {

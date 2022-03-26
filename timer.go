@@ -9,7 +9,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-type IdlingModel struct {
+type TimerModel struct {
 	spinner  spinner.Model
 	c        shopee.Client
 	item     shopee.CheckoutableItem
@@ -17,7 +17,7 @@ type IdlingModel struct {
 	addr     shopee.AddressInfo
 	logistic shopee.LogisticChannelInfo
 	status   string
-	msgch    <-chan tea.Msg
+	msgch    chan tea.Msg
 	time     string
 	err      error
 	win      tea.WindowSizeMsg
@@ -25,16 +25,16 @@ type IdlingModel struct {
 	loading  bool
 }
 
-func NewIdlingModel(
+func NewTimerModel(
 	c shopee.Client,
 	item shopee.CheckoutableItem,
 	payment shopee.PaymentChannelData,
 	addr shopee.AddressInfo,
 	logistic shopee.LogisticChannelInfo,
-) IdlingModel {
+) TimerModel {
 	sp := spinner.New()
 	sp.Spinner = spinner.Dot
-	return IdlingModel{
+	return TimerModel{
 		spinner:  sp,
 		c:        c,
 		item:     item,
@@ -44,6 +44,7 @@ func NewIdlingModel(
 		status:   "Menunggu flash sale",
 		time:     time.Now().Format(timeFormat),
 		loading:  true,
+		msgch:    make(chan tea.Msg),
 	}
 }
 
@@ -56,11 +57,12 @@ func updateTime() tea.Msg {
 	return timeMsg(time.Now().Format(timeFormat))
 }
 
-func (m IdlingModel) Init() tea.Cmd {
-	return tea.Batch(waitForFS(m.item.Item), m.spinner.Tick, updateTime)
+func (m TimerModel) Init() tea.Cmd {
+	go m.checkout()
+	return tea.Batch(waitForMsg(m.msgch), m.spinner.Tick, updateTime)
 }
 
-func (m IdlingModel) View() string {
+func (m TimerModel) View() string {
 	if m.err != nil {
 		return m.status + "\n" +
 			errorStyle.Copy().
@@ -87,78 +89,66 @@ func (m IdlingModel) View() string {
 		) + "\n"
 }
 
-type checkoutMsg struct{}
-
-func waitForFS(item shopee.Item) tea.Cmd {
-	return func() tea.Msg {
-		if !item.IsFlashSale() {
-			fsaletime := time.Unix(item.UpcomingFsaleStartTime(), 0)
-			time.Sleep(time.Until(fsaletime))
-		}
-		return checkoutMsg{}
-	}
-}
-
 type statusMsg string
 type checkoutResultMsg struct{ spent time.Duration }
 
-func (m IdlingModel) checkout() <-chan tea.Msg {
-	ch := make(chan tea.Msg)
-	go func() {
-		start := time.Now()
-		ch <- statusMsg(blueStyle.Render("Refreshing item"))
-		updateditem, err := m.c.FetchItem(m.item.ShopID(), m.item.ItemID())
-		if err != nil {
-			ch <- err
-			close(ch)
+func (m TimerModel) checkout() {
+	if !m.item.IsFlashSale() {
+		fsaletime := time.Unix(m.item.UpcomingFsaleStartTime(), 0)
+		time.Sleep(time.Until(fsaletime))
+	}
+
+	start := time.Now()
+	m.msgch <- statusMsg(blueStyle.Render("Refreshing item"))
+	updateditem, err := m.c.FetchItem(m.item.ShopID(), m.item.ItemID())
+	if err != nil {
+		m.msgch <- err
+		close(m.msgch)
+		return
+	}
+	m.msgch <- statusMsg(blueStyle.Render("Validasi checkout"))
+	citem := shopee.ChooseModel(updateditem, m.item.ChosenModel().ModelID())
+	err = m.c.ValidateCheckout(citem)
+	if err != nil {
+		if coErr, ok := err.(shopee.CheckoutValidationError); !(ok && coErr.Code() == 7) {
+			m.msgch <- err
+			close(m.msgch)
 			return
 		}
-		ch <- statusMsg(blueStyle.Render("Validasi checkout"))
-		citem := shopee.ChooseModel(updateditem, m.item.ChosenModel().ModelID())
-		err = m.c.ValidateCheckout(citem)
-		if err != nil {
-			ch <- err
-			close(ch)
-			return
-		}
-		ch <- statusMsg(blueStyle.Render("Checkout get"))
-		params, err := m.c.CheckoutGetQuick(shopee.CheckoutParams{
-			Addr:        m.addr,
-			Item:        citem,
-			PaymentData: m.payment,
-			Logistic:    m.logistic,
-		})
-		if err != nil {
-			ch <- err
-			close(ch)
-			return
-		}
-		ch <- statusMsg(blueStyle.Render("Place order"))
-		err = m.c.PlaceOrder(params)
-		if err != nil {
-			ch <- err
-			close(ch)
-			return
-		}
-		spent := time.Since(start)
-		ch <- checkoutResultMsg{spent}
-		close(ch)
-	}()
-	return ch
+	}
+	m.msgch <- statusMsg(blueStyle.Render("Checkout get"))
+	params, err := m.c.CheckoutGetQuick(shopee.CheckoutParams{
+		Addr:        m.addr,
+		Item:        citem,
+		PaymentData: m.payment,
+		Logistic:    m.logistic,
+	})
+	if err != nil {
+		m.msgch <- err
+		close(m.msgch)
+		return
+	}
+	m.msgch <- statusMsg(blueStyle.Render("Place order"))
+	err = m.c.PlaceOrder(params)
+	if err != nil {
+		m.msgch <- err
+		close(m.msgch)
+		return
+	}
+	spent := time.Since(start)
+	m.msgch <- checkoutResultMsg{spent}
+	close(m.msgch)
 }
 
 func waitForMsg(ch <-chan tea.Msg) tea.Cmd {
 	return func() tea.Msg { return <-ch }
 }
 
-func (m IdlingModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m TimerModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case timeMsg:
 		m.time = string(msg)
 		return m, updateTime
-	case checkoutMsg:
-		m.msgch = m.checkout()
-		return m, waitForMsg(m.msgch)
 	case checkoutResultMsg:
 		m.status = successStyle.Render("Sukses")
 		m.spent = msg.spent

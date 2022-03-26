@@ -75,7 +75,7 @@ func (m URLModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if !item.IsFlashSale() && !item.HasUpcomingFsale() {
 					return errors.New("tidak ada flash sale untuk item ini")
 				}
-				if item.Stock() == 0 {
+				if !item.HasUpcomingFsale() && item.Stock() == 0 {
 					return errors.New("stok item kosong")
 				}
 				return fetchItemMsg{item}

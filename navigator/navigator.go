@@ -13,15 +13,23 @@ const (
 )
 
 type navMsg struct {
-	tea.Model
+	model     tea.Model
 	predicate func(int, tea.Model) bool
+	msg       tea.Msg
 	action    navAction
+}
+
+func (n navMsg) cmd() tea.Cmd {
+	if n.msg != nil {
+		return func() tea.Msg { return n.msg }
+	}
+	return nil
 }
 
 func Push(m tea.Model) tea.Cmd {
 	return func() tea.Msg {
 		return navMsg{
-			Model:  m,
+			model:  m,
 			action: actionPush,
 		}
 	}
@@ -30,7 +38,7 @@ func Push(m tea.Model) tea.Cmd {
 func PushReplacement(m tea.Model) tea.Cmd {
 	return func() tea.Msg {
 		return navMsg{
-			Model:  m,
+			model:  m,
 			action: actionPushReplacement,
 		}
 	}
@@ -39,8 +47,16 @@ func PushReplacement(m tea.Model) tea.Cmd {
 func Pop() tea.Cmd {
 	return func() tea.Msg {
 		return navMsg{
-			Model:  nil,
 			action: actionPop,
+		}
+	}
+}
+
+func PopWithResult[T any](v T) tea.Cmd {
+	return func() tea.Msg {
+		return navMsg{
+			action: actionPop,
+			msg:    ResultMsg[T]{v},
 		}
 	}
 }
@@ -51,12 +67,14 @@ func Pop() tea.Cmd {
 func PushAndRemoveUntil(m tea.Model, predicate func(int, tea.Model) bool) tea.Cmd {
 	return func() tea.Msg {
 		return navMsg{
-			Model:     m,
+			model:     m,
 			predicate: predicate,
 			action:    actionPushAndRemoveUntil,
 		}
 	}
 }
+
+type ResultMsg[T any] struct{ Value T }
 
 type Navigator struct {
 	winsize tea.WindowSizeMsg
@@ -85,17 +103,17 @@ func (m Navigator) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case navMsg:
 		switch msg.action {
 		case actionPush:
-			m.models = append(m.models, msg.Model)
-			return m, tea.Batch(msg.Init(), m.winsizeCmd)
+			m.models = append(m.models, msg.model)
+			return m, tea.Batch(msg.model.Init(), m.winsizeCmd)
 		case actionPushReplacement:
-			m.models[len(m.models)-1] = msg.Model
-			return m, tea.Batch(msg.Init(), m.winsizeCmd)
+			m.models[len(m.models)-1] = msg.model
+			return m, tea.Batch(msg.model.Init(), m.winsizeCmd)
 		case actionPop:
 			if len(m.models) == 1 {
 				return m, tea.Quit
 			}
 			m.models = m.models[:len(m.models)-1]
-			return m, m.winsizeCmd
+			return m, tea.Batch(m.winsizeCmd, msg.cmd())
 		case actionPushAndRemoveUntil:
 			for i, model := range m.models {
 				if msg.predicate(i, model) {
@@ -103,8 +121,8 @@ func (m Navigator) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 				m.models = m.models[:len(m.models)-1]
 			}
-			m.models = append(m.models, msg.Model)
-			return m, tea.Batch(msg.Init(), m.winsizeCmd)
+			m.models = append(m.models, msg.model)
+			return m, tea.Batch(msg.model.Init(), m.winsizeCmd)
 		}
 	case tea.KeyMsg:
 		switch msg.String() {

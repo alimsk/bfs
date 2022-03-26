@@ -90,7 +90,7 @@ func (m LogisticModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			}
 			return m, navigator.PushAndRemoveUntil(
-				NewIdlingModel(m.c, m.item, m.payment, m.addr, lc),
+				NewTimerModel(m.c, m.item, m.payment, m.addr, lc),
 				func(int, tea.Model) bool { return false },
 			)
 		}
@@ -120,7 +120,7 @@ func (m LogisticModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Quit
 			}
 			return m, navigator.PushAndRemoveUntil(
-				NewIdlingModel(m.c, m.item, m.payment, msg.addr, msg.logistics[0]),
+				NewTimerModel(m.c, m.item, m.payment, msg.addr, msg.logistics[0]),
 				func(int, tea.Model) bool { return false },
 			)
 		}

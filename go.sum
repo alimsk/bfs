@@ -4,6 +4,8 @@ github.com/alimsk/shopee v0.0.0-20220320193845-35ce4e346b23 h1:NKv/G8aDHIRvBJd5y
 github.com/alimsk/shopee v0.0.0-20220320193845-35ce4e346b23/go.mod h1:2GyZcXL+rGI3jP/vx1niShtom7dGaRrxRGgc/1FPmBk=
 github.com/alimsk/shopee v0.0.0-20220321194244-72687a22efa1 h1:P7tcgVPtURCNmZLoJB/2KchDXNST78iGhCTEQry3ZR0=
 github.com/alimsk/shopee v0.0.0-20220321194244-72687a22efa1/go.mod h1:2GyZcXL+rGI3jP/vx1niShtom7dGaRrxRGgc/1FPmBk=
+github.com/alimsk/shopee v0.0.0-20220326134444-3a18635e433f h1:aOgi1wJojaIZG4YqdKHtuqlUPPPVn4xg8BmRE6o+1Bs=
+github.com/alimsk/shopee v0.0.0-20220326134444-3a18635e433f/go.mod h1:2GyZcXL+rGI3jP/vx1niShtom7dGaRrxRGgc/1FPmBk=
 github.com/atotto/clipboard v0.1.4 h1:EH0zSVneZPSuFR11BlR9YppQTVDbh5+16AmcJi4g1z4=
 github.com/atotto/clipboard v0.1.4/go.mod h1:ZY9tmq7sm5xIbd9bOK4onWV4S6X0u6GY7Vn0Yu86PYI=
 github.com/charmbracelet/bubbles v0.10.3 h1:fKarbRaObLn/DCsZO4Y3vKCwRUzynQD9L+gGev1E/ho=
@@ -66,6 +68,8 @@ github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UV
 golang.org/x/net v0.0.0-20211029224645-99673261e6eb/go.mod h1:9nx3DQGgdP8bBQD5qxJ1jj9UTztislL4KSBs9R2vV5Y=
 golang.org/x/net v0.0.0-20220225172249-27dd8689420f h1:oA4XRj0qtSt8Yo1Zms0CUlsT3KG69V2UGQWPBxujDmc=
 golang.org/x/net v0.0.0-20220225172249-27dd8689420f/go.mod h1:CfG3xpIq0wQ8r1q4Su4UZFWDARRcnwPjda9FqA0JpMk=
+golang.org/x/net v0.0.0-20220325170049-de3da57026de h1:pZB1TWnKi+o4bENlbzAgLrEbY4RMYmUIRobMcSmfeYc=
+golang.org/x/net v0.0.0-20220325170049-de3da57026de/go.mod h1:CfG3xpIq0wQ8r1q4Su4UZFWDARRcnwPjda9FqA0JpMk=
 golang.org/x/sys v0.0.0-20200116001909-b77594299b42/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20201119102817-f84b799fce68/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20210119212857-b64e53b001e4/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
