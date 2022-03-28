@@ -6,7 +6,6 @@ import (
 
 	"github.com/alimsk/shopee"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 )
 
 type TimerModel struct {
@@ -42,14 +41,13 @@ func NewTimerModel(
 		logistic:     logistic,
 		fsale:        fsale,
 		countdownCmd: ternary(item.HasUpcomingFsale(), countdown(fsale), nil),
-		status:       "Menunggu flash sale",
 		countdownView: ternary(
 			item.HasUpcomingFsale(),
 			countdownFormat(fsale.Sub(time.Now().Local())),
 			"",
 		),
 		loading: true,
-		msgch:   make(chan tea.Msg),
+		msgch:   make(chan tea.Msg, 1),
 	}
 }
 
@@ -83,23 +81,18 @@ func (m TimerModel) View() string {
 				Render(m.err.Error()) + "\n" // trailing line prevent from erasing last line
 	}
 
-	var spent string
-	if m.spent != 0 {
-		spent = ternary(m.spent.Seconds() < 2, successStyle, warnStyle).Render(m.spent.String())
-	}
-
-	var countdown string
+	var content string
 	if m.countdownView != "" {
-		countdown = blueStyle.Render(m.countdownView) + "\n"
+		content = "Mulai pada " + blueStyle.Render(m.countdownView)
+	} else {
+		content = m.status
+		if m.spent != 0 {
+			content += "\n" + ternary(m.spent.Seconds() < 2, successStyle, warnStyle).Render(m.spent.String())
+		}
 	}
 
-	return lipgloss.NewStyle().
-		PaddingLeft(2).
-		Render(
-			countdown+
-				m.status+"\n"+
-				spent,
-		) + "\n"
+	return bold("Countdown") + "\n" +
+		content + "\n"
 }
 
 type statusMsg string
