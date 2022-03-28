@@ -36,12 +36,18 @@ Cek [video tutorial](https://youtu.be/1fIKouowm_M)
 
 menggunakan bot juga tidak menjamin akan dapat barang yg dituju, jadi tetep hoki-hokian tapi lebih peluangnya
 
+### Grup Telegram
+Join grup telegram untuk diskusi atau pamer barang yang anda dapat
+
+link:
+https://t.me/+n9NofX8hLwo5OGVl
+
 # Support
 Star repo ini jika berguna, bisa juga donate ke saya via dana :)
 
 <img src="https://user-images.githubusercontent.com/51353996/158705498-add7da42-1907-43ff-ab80-b2d673f66b3b.png" width="600">
 
-kalo nemu bug atau ingin bertanya, bisa buat issue di halaman [issue](https://github.com/alimsk/bfs/issues)
+kalo nemu bug atau masalah lain bisa buat issue di halaman [issue](https://github.com/alimsk/bfs/issues)
 
 # Contribution
 Contributions are welcome
