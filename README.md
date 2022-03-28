@@ -37,7 +37,7 @@ Cek [video tutorial](https://youtu.be/1fIKouowm_M)
 menggunakan bot juga tidak menjamin akan dapat barang yg dituju, jadi tetep hoki-hokian tapi lebih peluangnya
 
 ### Grup Telegram
-Join grup telegram untuk diskusi atau pamer barang yang anda dapat
+Join grup telegram untuk diskusi atau memamerkan barang yang anda dapat
 
 link:
 https://t.me/+n9NofX8hLwo5OGVl
