@@ -47,7 +47,12 @@ Star repo ini jika berguna, bisa juga donate ke saya via dana :)
 
 <img src="https://user-images.githubusercontent.com/51353996/158705498-add7da42-1907-43ff-ab80-b2d673f66b3b.png" width="600">
 
-kalo nemu bug atau masalah lain bisa buat issue di halaman [issue](https://github.com/alimsk/bfs/issues)
+kalo nemu bug atau masalah lain bisa buat issue di halaman [issue](https://github.com/alimsk/bfs/issues).
+
+Sebelum buat issue:
+1. usahakan cari apakah ada issue yg sama sebelum membuat issue.
+2. kalo buat issue gunakan title yg jelas, jangan kek "ini kok error ya", "error bang", "bang ini gimana".
+kalo error, kasih title errornya misal "error_params", "error_opc_channel_not_available", biar yg lain gampang juga nyarinya.
 
 # Contribution
 Contributions are welcome
