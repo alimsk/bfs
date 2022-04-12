@@ -2,7 +2,7 @@
 Pembuat bot ini tidak bertanggung jawab jika anda kena banned/blokir shopee
 
 # Fitur
-- Dengan tidak mengandalkan webdriver atau selenium, ini dapat membuat bot lebih cepat, ringan, dan support running di android via Termux
+- Dengan tidak mengandalkan webdriver atau selenium, membuat bot lebih cepat & ringan, dan support running di android via Termux
 - Gratis ([donasi](#support))
 - Multi akun
 - Interactive CLI
@@ -58,4 +58,4 @@ kalo error, kasih title errornya misal "error_params", "error_opc_channel_not_av
 Contributions are welcome
 
 # Author
-Ali Msk (a.k.a [alimsk](https://github.com/alimsk))
+[alimsk](https://github.com/alimsk)
