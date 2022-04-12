@@ -2,7 +2,7 @@
 Pembuat bot ini tidak bertanggung jawab jika anda kena banned/blokir shopee
 
 # Fitur
-- Dengan tidak mengandalkan webdriver atau selenium, membuat bot lebih cepat & ringan, dan support running di android via Termux
+- Dengan tidak mengandalkan webdriver atau selenium dapat membuat bot lebih cepat & ringan, dan support running di android via Termux
 - Gratis ([donasi](#support))
 - Multi akun
 - Interactive CLI
