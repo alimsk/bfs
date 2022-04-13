@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/alimsk/list v0.0.0-20211218025647-53924f6ba359
-	github.com/alimsk/shopee v0.0.0-20220328041322-76d6208f8ecb
+	github.com/alimsk/shopee v0.0.0-20220411161629-2324a484709f
 	github.com/charmbracelet/bubbles v0.10.3
 	github.com/charmbracelet/bubbletea v0.20.0
 	github.com/charmbracelet/lipgloss v0.5.0
@@ -26,7 +26,7 @@ require (
 	github.com/muesli/termenv v0.11.1-0.20220212125758-44cd13922739 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/sahilm/fuzzy v0.1.0 // indirect
-	golang.org/x/net v0.0.0-20220325170049-de3da57026de // indirect
+	golang.org/x/net v0.0.0-20220407224826-aac1ed45d8e3 // indirect
 	golang.org/x/sys v0.0.0-20220318055525-2edf467146b5 // indirect
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
 )

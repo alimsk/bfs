@@ -103,7 +103,10 @@ func (m LogisticModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if logistic.HasWarning() {
 				desc = logistic.Warning()
 			} else {
-				desc = formatPrice(logistic.Price())
+				desc = formatPrice(logistic.MinPrice()) + " - " + formatPrice(logistic.MaxPrice())
+				if logistic.PriceBeforeDiscount() != 0 {
+					desc += " " + blurredStyle.Copy().Strikethrough(true).Render(formatPrice(logistic.PriceBeforeDiscount()))
+				}
 			}
 			items[i] = list.SimpleItem{
 				Title:    logistic.Name(),

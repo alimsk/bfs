@@ -123,7 +123,7 @@ func NewAccountModel(s *State) AccountModel {
 	}
 }
 
-type accountChooserInitMsg struct {
+type accountInitMsg struct {
 	cs      []shopee.Client
 	usernms []string
 	cookies []*CookieJarMarshaler
@@ -150,7 +150,7 @@ func (m AccountModel) Init() tea.Cmd {
 				newcookies = append(newcookies, cookie)
 			}
 
-			return accountChooserInitMsg{cs, usernms, newcookies}
+			return accountInitMsg{cs, usernms, newcookies}
 		},
 	)
 }
@@ -236,7 +236,7 @@ func (m AccountModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			usernm := m.list.Adapter.(SingleLineAdapter)[m.list.ItemFocus()][1]
 			return m, navigator.PushReplacement(NewURLModel(m.cs[m.list.ItemFocus()], usernm))
 		}
-	case accountChooserInitMsg:
+	case accountInitMsg:
 		m.cs = msg.cs
 		m.state.Cookies = msg.cookies
 		a := make(SingleLineAdapter, len(msg.usernms)+1)
