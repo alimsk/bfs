@@ -36,6 +36,20 @@ Cek [video tutorial](https://youtu.be/1fIKouowm_M)
 
 menggunakan bot juga tidak menjamin akan dapat barang yg dituju, jadi tetep hoki-hokian tapi lebih peluangnya
 
+### Command Line Arguments
+#### -state
+nama state file.
+
+state file adalah tempat bfs menyimpan akun dan data.
+
+#### -d
+delay antar request (pada bagian checkout).
+
+contoh penggunaan, `bfs -d 100ms` untuk set delay ke 100ms.
+
+opsi ini dibuat untuk mempercepat waktu checkout.
+semakin kecil maka semakin cepat, namun semakin besar kemungkinan gagalnya.
+
 ### Grup Telegram
 Join grup telegram untuk diskusi atau memamerkan barang yang anda dapat
 

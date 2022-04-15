@@ -70,8 +70,8 @@ func NewTimerModel(
 		),
 		msgch: make(chan tea.Msg, 1),
 		tasks: []Task{
-			{title: "Refreshing Item"},
-			{title: "Validasi Checkout"},
+			{title: "Refreshing item"},
+			{title: "Validasi"},
 			{title: "Checkout get"},
 			{title: "Place order"},
 		},
@@ -159,8 +159,13 @@ func (m *TimerModel) checkout() {
 	}
 	m.msgch <- taskUpdateMsg{statusDone}
 
+	if *delay == 0 {
+		m.checkoutNoDelay(updateditem, start)
+		return
+	}
+
 	var wg sync.WaitGroup
-	wg.Add(2)
+	wg.Add(3)
 
 	citem := shopee.ChooseModel(updateditem, m.item.ChosenModel().ModelID())
 	go func() {
@@ -176,16 +181,17 @@ func (m *TimerModel) checkout() {
 		wg.Done()
 	}()
 
-	time.Sleep(100 * time.Millisecond)
+	time.Sleep(*delay)
+	params := shopee.CheckoutParams{
+		Addr:        m.addr,
+		Item:        citem,
+		PaymentData: m.payment,
+		Logistic:    m.logistic,
+	}.WithTimestamp(time.Now().Unix())
 
 	go func() {
 		m.msgch <- taskUpdateMsg{statusRunning}
-		params, err := m.c.CheckoutGetQuick(shopee.CheckoutParams{
-			Addr:        m.addr,
-			Item:        citem,
-			PaymentData: m.payment,
-			Logistic:    m.logistic,
-		})
+		_, err := m.c.CheckoutGetQuick(params)
 		if err != nil {
 			m.msgch <- err
 			close(m.msgch)
@@ -193,8 +199,14 @@ func (m *TimerModel) checkout() {
 		}
 		m.msgch <- taskUpdateMsg{statusDone}
 
+		wg.Done()
+	}()
+
+	time.Sleep(*delay)
+
+	go func() {
 		m.msgch <- taskUpdateMsg{statusRunning}
-		err = m.c.PlaceOrder(params)
+		err := m.c.PlaceOrder(params)
 		if err != nil {
 			m.msgch <- err
 			close(m.msgch)
@@ -206,6 +218,46 @@ func (m *TimerModel) checkout() {
 	}()
 
 	wg.Wait()
+
+	spent := time.Since(start)
+	m.msgch <- checkoutResultMsg{spent}
+	close(m.msgch)
+}
+
+func (m *TimerModel) checkoutNoDelay(updateditem shopee.Item, start time.Time) {
+	citem := shopee.ChooseModel(updateditem, m.item.ChosenModel().ModelID())
+
+	m.msgch <- taskUpdateMsg{statusRunning}
+	err := m.c.ValidateCheckout(citem)
+	if err != nil {
+		m.msgch <- err
+		close(m.msgch)
+		return
+	}
+	m.msgch <- taskUpdateMsg{statusDone}
+
+	m.msgch <- taskUpdateMsg{statusRunning}
+	params, err := m.c.CheckoutGetQuick(shopee.CheckoutParams{
+		Addr:        m.addr,
+		Item:        citem,
+		PaymentData: m.payment,
+		Logistic:    m.logistic,
+	})
+	if err != nil {
+		m.msgch <- err
+		close(m.msgch)
+		return
+	}
+	m.msgch <- taskUpdateMsg{statusDone}
+
+	m.msgch <- taskUpdateMsg{statusRunning}
+	err = m.c.PlaceOrder(params)
+	if err != nil {
+		m.msgch <- err
+		close(m.msgch)
+		return
+	}
+	m.msgch <- taskUpdateMsg{statusDone}
 
 	spent := time.Since(start)
 	m.msgch <- checkoutResultMsg{spent}

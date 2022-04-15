@@ -17,6 +17,7 @@ import (
 
 var (
 	stateFilename = flag.String("state", "bfs_state.json", "state file name")
+	delay         = flag.Duration("d", 0, "delay antar request.\nsemakin kecil nilai semakin cepat waktu checkout, namun mengurangi peluang sukses, cek https://github.com/alimsk/bfs#-d")
 )
 
 // https://github.com/golang/go/issues/20455#issuecomment-342287698
