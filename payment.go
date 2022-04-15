@@ -8,8 +8,9 @@ import (
 )
 
 type PaymentModel struct {
-	c      shopee.Client
-	item   shopee.CheckoutableItem
+	c    shopee.Client
+	item shopee.CheckoutableItem
+
 	list   list.Model
 	opts   list.Model
 	win    tea.WindowSizeMsg

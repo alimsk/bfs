@@ -12,12 +12,13 @@ import (
 )
 
 type ItemModel struct {
+	c     shopee.Client
+	item  shopee.Item
+	citem shopee.CheckoutableItem
+
 	tvars []shopee.TierVar
 	// currently focused option
 	tvarfocus []int
-	citem     shopee.CheckoutableItem
-	c         shopee.Client
-	item      shopee.Item
 	err       error
 	focus     int
 	win       tea.WindowSizeMsg

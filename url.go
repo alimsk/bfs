@@ -11,11 +11,12 @@ import (
 )
 
 type URLModel struct {
+	c shopee.Client
+
 	input    textinput.Model
 	spinner  spinner.Model
 	err      error
 	usernm   string
-	c        shopee.Client
 	win      tea.WindowSizeMsg
 	fetching bool
 }

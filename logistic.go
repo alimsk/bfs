@@ -12,12 +12,13 @@ import (
 )
 
 type LogisticModel struct {
+	c       shopee.Client
+	item    shopee.CheckoutableItem
+	payment shopee.PaymentChannelData
+	addr    shopee.AddressInfo
+
 	spinner   spinner.Model
 	list      list.Model
-	c         shopee.Client
-	item      shopee.CheckoutableItem
-	payment   shopee.PaymentChannelData
-	addr      shopee.AddressInfo
 	win       tea.WindowSizeMsg
 	err       error
 	logistics []shopee.LogisticChannelInfo
@@ -39,6 +40,8 @@ type logisticInitMsg struct {
 	logistics []shopee.LogisticChannelInfo
 }
 
+type fatalError struct{ error }
+
 func (m LogisticModel) Init() tea.Cmd {
 	return tea.Batch(
 		m.spinner.Tick,
@@ -47,7 +50,11 @@ func (m LogisticModel) Init() tea.Cmd {
 			if err != nil {
 				return err
 			}
-			_, deliveryAddr := addrs.DeliveryAddress()
+			i, deliveryAddr := addrs.DeliveryAddress()
+			if i == -1 {
+				return fatalError{errors.New("alamat utama tidak ditemukan, silahkan setting terlebih dahulu")}
+			}
+
 			logistics, err := m.c.FetchShippingInfo(deliveryAddr, m.item.Item)
 			if err != nil {
 				return err
@@ -73,6 +80,7 @@ func (m LogisticModel) View() string {
 }
 
 func (m LogisticModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	// interfaces must be placed below concrete types
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		if m.logistics == nil {
@@ -127,6 +135,9 @@ func (m LogisticModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				func(int, tea.Model) bool { return false },
 			)
 		}
+	case fatalError:
+		m.err = msg.error
+		return m, tea.Quit
 	case error:
 		m.err = msg
 		return m, nil
