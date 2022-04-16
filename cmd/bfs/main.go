@@ -21,7 +21,7 @@ const version = "v1.1.0"
 
 var (
 	stateFilename = flag.String("state", "bfs_state.json", "state file name")
-	delay         = flag.Duration("d", 0, "delay antar request.\nsemakin kecil nilai semakin cepat waktu checkout, namun mengurangi peluang sukses, cek https://github.com/alimsk/bfs#-d")
+	delay         = flag.Duration("d", 0, "delay antar request.\ndokumentasi: https://github.com/alimsk/bfs#-d")
 )
 
 // https://github.com/golang/go/issues/20455#issuecomment-342287698
