@@ -23,14 +23,6 @@ curl -L https://github.com/alimsk/bfs/releases/latest/download/bfs-linux-amd64 >
 ### Windows
 Download file exe nya manual di [release](https://github.com/alimsk/bfs/releases/latest)
 
-### Install dari source
-Dibutuhkan go 1.18
-
-install dari main branch untuk fitur terbaru (sebelum dirilis)
-```
-go install github.com/alimsk/bfs@main
-```
-
 # Penggunaan
 Untuk login bisa ambil cookie shopee dari chrome menggunakan ekstensi [Copy Cookies](https://chrome.google.com/webstore/detail/copy-cookies/jcbpglbplpblnagieibnemmkiamekcdg?hl=en),
 lalu pastekan ke textinputnya.
@@ -44,7 +36,7 @@ nama state file.
 state file adalah tempat bfs menyimpan akun dan data.
 
 ### -d
-delay antar request (pada bagian checkout).
+delay antar request (pada bagian checkout).  
 bot akan mengirimkan request secara bersamaan, opsi ini mengatur berapa lama harus menunggu sebelum mengirimkan request selanjutnya.
 
 jika disetting ke 0 (default) maka request akan dikirimkan satu-persatu.
@@ -71,7 +63,11 @@ penggunaan:
 https://t.me/+n9NofX8hLwo5OGVl
 
 # Support
-Star repo ini jika berguna, bisa juga donate ke saya via dana :)
+Star repo ini dengan menekan tombol <img align="center" src="https://user-images.githubusercontent.com/51353996/163677753-c95363d2-54aa-412e-8709-6daaf341223f.png">
+ di pojok kanan atas.  
+jangan cuma make doang dong, biar sama-sama untung :D
+
+bisa juga donate ke saya via dana
 
 <img src="https://user-images.githubusercontent.com/51353996/158705498-add7da42-1907-43ff-ab80-b2d673f66b3b.png" width="600">
 
