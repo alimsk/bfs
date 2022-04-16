@@ -146,7 +146,7 @@ func (m *TimerModel) checkout() {
 
 	updateditem := m.item.Item
 	if !m.item.Item.IsFlashSale() {
-		time.Sleep(time.Until(m.fsale))
+		time.Sleep(time.Until(m.fsale) - *subFSTime)
 		m.msgch <- taskUpdateMsg{statusRunning}
 		start = time.Now()
 		var err error
@@ -271,11 +271,11 @@ func waitForMsg(ch <-chan tea.Msg) tea.Cmd {
 func (m *TimerModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case countdownMsg:
-		if d := time.Duration(msg); d-*subFSTime <= 0 {
-			m.countdownView = countdownFormat(d)
+		d := time.Duration(msg)
+		m.countdownView = countdownFormat(d)
+		if d-*subFSTime <= 0 {
 			return m, nil
 		}
-		m.countdownView = countdownFormat(time.Duration(msg))
 		return m, m.countdownCmd
 	case checkoutResultMsg:
 		m.spent = msg.spent
