@@ -47,21 +47,22 @@ func (m ItemModel) View() string {
 		Padding(0, 1).
 		Render(
 			blueStyle.Render(m.item.Name()) + "\n" +
-				bold("Harga: ") + blueStyle.Render(formatPrice(m.item.Price())) + "\n" +
+				bold("Harga: ") + blueStyle.Render("Rp"+m.item.UpcomingFsaleHiddenPrice()) + "\n" +
 				bold("Stok:  ") + blueStyle.Render(strconv.Itoa(m.item.Stock())),
 		),
 	)
 	b.WriteByte('\n')
-	cm := m.citem.ChosenModel()
+	model := m.citem.ChosenModel()
 	b.WriteString(lipgloss.NewStyle().
 		Width(m.win.Width-2).
 		Border(lipgloss.NormalBorder(), true).
 		Padding(0, 1).
 		Render(
 			bold("Model") + "\n" +
-				blueStyle.Render(ternary(cm.Name() == "", "Tidak ada varian", cm.Name())) + "\n" +
-				bold("Harga: ") + blueStyle.Render(formatPrice(cm.Price())) + "\n" +
-				bold("Stok:  ") + ternary(cm.Stock() != 0, blueStyle, errorStyle).Render(strconv.Itoa(cm.Stock())),
+				blueStyle.Render(model.Name()) + "\n" +
+				bold("Harga: ") + blueStyle.Render(formatPrice(model.Price())) + "\n" +
+				bold("Stok: ") + ternary(model.Stock() != 0, blueStyle, errorStyle).Render(strconv.Itoa(model.Stock())) + "\n" +
+				bold("Flashsale: ") + ternary(model.HasUpcomingFsale(), successStyle.Render("Ya"), errorStyle.Render("Tidak")),
 		),
 	)
 	b.WriteByte('\n')
@@ -107,8 +108,8 @@ func (m ItemModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "enter":
 			if m.focus == len(m.tvars) {
-				if !m.citem.HasUpcomingFsale() && m.citem.ChosenModel().Stock() == 0 {
-					m.err = errors.New("stok model kosong")
+				if !m.citem.ChosenModel().HasUpcomingFsale() {
+					m.err = errors.New("tidak ada flash sale pada model ini")
 					return m, nil
 				}
 				return m, navigator.PushReplacement(NewPaymentModel(m.c, m.citem))
