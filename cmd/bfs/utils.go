@@ -1,6 +1,8 @@
 package main
 
 import (
+	"math/rand"
+
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 )
@@ -42,4 +44,13 @@ var priceFormatter = message.NewPrinter(language.Indonesian)
 
 func formatPrice(v int64) string {
 	return priceFormatter.Sprintf("Rp%d", v/100000)
+}
+
+func randstr(n int) string {
+	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = letters[rand.Int63()%int64(len(letters))]
+	}
+	return string(b)
 }

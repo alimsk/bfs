@@ -2,7 +2,7 @@
 Pembuat bot ini tidak bertanggung jawab jika anda kena banned/blokir shopee
 
 # Fitur
-- Dengan tidak mengandalkan webdriver atau selenium dapat membuat bot lebih cepat & ringan, dan support running di android via Termux
+- Tidak mengandalkan webdriver atau selenium dapat membuat bot lebih cepat & ringan, dan support running di android via Termux
 - Gratis ([donasi](#support))
 - Multi akun
 - Interactive CLI
@@ -31,29 +31,43 @@ install dari main branch untuk fitur terbaru (sebelum dirilis)
 go install github.com/alimsk/bfs@main
 ```
 
-# Cara Pake
-Cek [video tutorial](https://youtu.be/1fIKouowm_M)
+# Penggunaan
+Untuk login bisa ambil cookie shopee dari chrome menggunakan ekstensi [Copy Cookies](https://chrome.google.com/webstore/detail/copy-cookies/jcbpglbplpblnagieibnemmkiamekcdg?hl=en),
+lalu pastekan ke textinputnya.
 
-menggunakan bot juga tidak menjamin akan dapat barang yg dituju, jadi tetep hoki-hokian tapi lebih peluangnya
+Kalo kurang jelas bisa cek [video tutorial](https://youtu.be/1fIKouowm_M).
 
-### Command Line Arguments
-#### -state
+## Arguments
+### -state
 nama state file.
 
 state file adalah tempat bfs menyimpan akun dan data.
 
-#### -d
+### -d
 delay antar request (pada bagian checkout).
+bot akan mengirimkan request secara bersamaan, opsi ini mengatur berapa lama harus menunggu sebelum mengirimkan request selanjutnya.
 
-contoh penggunaan, `bfs -d 100ms` untuk set delay ke 100ms.
+jika disetting ke 0 (default) maka request akan dikirimkan satu-persatu.
 
-opsi ini dibuat untuk mempercepat waktu checkout.
-semakin kecil maka semakin cepat, namun semakin besar kemungkinan gagalnya.
+contoh:  
+- 10ms
+- 5s
+- 2h
 
-### Grup Telegram
-Join grup telegram untuk diskusi atau memamerkan barang yang anda dapat
+## Subcommand
+### info
+mengambil informasi produk.
 
-link:
+penggunaan:  
+`bfs info <url produk>`
+
+### version
+tampilkan versi bfs.
+
+penggunaan:  
+`bfs version`
+
+## Grup Telegram
 https://t.me/+n9NofX8hLwo5OGVl
 
 # Support
@@ -62,11 +76,6 @@ Star repo ini jika berguna, bisa juga donate ke saya via dana :)
 <img src="https://user-images.githubusercontent.com/51353996/158705498-add7da42-1907-43ff-ab80-b2d673f66b3b.png" width="600">
 
 kalo nemu bug atau masalah lain bisa buat issue di halaman [issue](https://github.com/alimsk/bfs/issues).
-
-Sebelum buat issue:
-1. usahakan cari apakah ada issue yg sama sebelum membuat issue.
-2. kalo buat issue gunakan title yg jelas, jangan kek "ini kok error ya", "error bang", "bang ini gimana".
-kalo error, kasih title errornya misal "error_params", "error_opc_channel_not_available", biar yg lain gampang juga nyarinya.
 
 # Contribution
 Contributions are welcome
