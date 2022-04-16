@@ -48,6 +48,8 @@ mengurangi waktu flash sale dengan nilai yg diberikan.
 misal waktu fs adalah 12:00:00, jika argumen ini 1s maka bot akan mulai checkout pada 11:59:59.  
 karena 12:00:00 - 1s adalah 11:59:59.
 
+Note: jika flash sale sudah dimulai maka opsi ini di abaikan.
+
 nilai dapat berisi durasi seperti 1s, 500ms, atau 2m
 
 ### -as
