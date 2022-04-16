@@ -94,7 +94,6 @@ func main() {
 
 func itemInfo() {
 	urlstr := flag.Arg(1)
-	printbool := func(v bool) string { return ternary(v, successStyle.Render("Ya"), errorStyle.Render("Tidak")) }
 
 	c, err := shopee.NewFromCookieString("csrftoken=" + randstr(32))
 	if err != nil {
@@ -106,8 +105,10 @@ func itemInfo() {
 		log.Fatal(err)
 	}
 
-	fsalestatus := printbool(item.IsFlashSale())
-	if !item.IsFlashSale() && item.HasUpcomingFsale() {
+	fsalestatus := "tidak ada"
+	if item.IsFlashSale() {
+		fsalestatus = "sedang berlangsung"
+	} else if item.HasUpcomingFsale() {
 		fsalestatus = blueStyle.Render("pada jam " + time.Unix(item.UpcomingFsaleStartTime(), 0).Format("3:04:05 PM"))
 	}
 
@@ -139,10 +140,10 @@ func itemInfo() {
 	for _, model := range item.Models() {
 		fmt.Println(
 			"\n"+blueStyle.Render(model.Name()),
-			"\nID:       ", model.ModelID(),
-			"\nHarga:    ", formatPrice(model.Price()),
-			"\nStok:     ", model.Stock(),
-			"\nFlashsale:", printbool(model.HasUpcomingFsale()),
+			"\nID:                 ", model.ModelID(),
+			"\nHarga:              ", formatPrice(model.Price()),
+			"\nStok:               ", model.Stock(),
+			"\nFlashsale Mendatang:", ternary(model.HasUpcomingFsale(), "Ya", "Tidak"),
 		)
 	}
 }
