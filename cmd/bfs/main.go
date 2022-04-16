@@ -17,7 +17,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-const version = "v1.1.0"
+var version string
 
 var (
 	stateFilename = flag.String("state", "bfs_state.json", "state file name")
@@ -84,7 +84,7 @@ func main() {
 	}
 	defer state.saveAsFile(*stateFilename)
 
-	m := navigator.New(NewAccountModel(state))
+	m := navigator.New(NewLoginModel(state))
 	p := tea.NewProgram(m)
 	if err = p.Start(); err != nil {
 		log.Print(err)

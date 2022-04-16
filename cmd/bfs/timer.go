@@ -24,7 +24,8 @@ type Task struct {
 	// success = status == statusDone && err != nil
 	err error
 
-	status TaskStatus
+	status   TaskStatus
+	duration time.Duration
 }
 
 type TimerModel struct {
@@ -38,11 +39,14 @@ type TimerModel struct {
 	countdownCmd  tea.Cmd
 	countdownView string
 
-	msgch       chan tea.Msg
-	err         error
-	tasks       []Task
-	currentTask int
-	spent       time.Duration
+	msgch chan tea.Msg
+	err   error
+
+	tasks            []Task
+	currentTask      int
+	currentTaskStart time.Time
+
+	spent time.Duration
 
 	win tea.WindowSizeMsg
 }
@@ -120,7 +124,7 @@ func (m *TimerModel) View() string {
 				style = successStyle.Render
 			}
 		}
-		b.WriteString(style(cursor+task.title) + "\n")
+		b.WriteString(style(cursor+task.title) + "  " + blueStyle.Render(task.duration.Round(time.Millisecond).String()) + "\n")
 	}
 
 	if m.err != nil {
@@ -144,10 +148,10 @@ type checkoutResultMsg struct{ spent time.Duration }
 func (m *TimerModel) checkout() {
 	start := time.Now()
 
+	m.msgch <- taskUpdateMsg{statusRunning}
 	updateditem := m.item.Item
 	if !m.item.Item.IsFlashSale() {
 		time.Sleep(time.Until(m.fsale) - *subFSTime)
-		m.msgch <- taskUpdateMsg{statusRunning}
 		start = time.Now()
 		var err error
 		updateditem, err = m.c.FetchItem(m.item.ShopID(), m.item.ItemID())
@@ -284,8 +288,11 @@ func (m *TimerModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.tasks[m.currentTask].status = msg.status
 		switch msg.status {
 		case statusDone:
+			m.tasks[m.currentTask].duration = time.Since(m.currentTaskStart)
 			m.currentTask++
-		case statusPending, statusRunning:
+		case statusRunning:
+			m.currentTaskStart = time.Now()
+		case statusPending:
 			// do nothing, update views
 		}
 		return m, waitForMsg(m.msgch)

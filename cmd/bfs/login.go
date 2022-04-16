@@ -79,7 +79,7 @@ func (m CookieInputModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		m.state.Cookies = append([]*CookieJarMarshaler{{msg.c.Client.GetClient().Jar}}, m.state.Cookies...)
 		return m, navigator.PushAndRemoveUntil(
-			NewAccountModel(m.state),
+			NewLoginModel(m.state),
 			func(int, tea.Model) bool { return false },
 		)
 	case error:
@@ -95,7 +95,7 @@ func (m CookieInputModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmd1, cmd2)
 }
 
-type AccountModel struct {
+type LoginModel struct {
 	list         list.Model
 	spinner      spinner.Model
 	state        *State
@@ -106,13 +106,13 @@ type AccountModel struct {
 	initialized  bool
 }
 
-func NewAccountModel(s *State) AccountModel {
+func NewLoginModel(s *State) LoginModel {
 	l := list.New(SingleLineAdapter{{"+ ", "Login"}})
 	l.Focus()
 	l.VisibleItemCount = 4
 	sp := spinner.New()
 	sp.Spinner = spinner.Dot
-	return AccountModel{
+	return LoginModel{
 		state:   s,
 		list:    l,
 		spinner: sp,
@@ -129,7 +129,7 @@ type accountInitMsg struct {
 	cookies []*CookieJarMarshaler
 }
 
-func (m AccountModel) Init() tea.Cmd {
+func (m LoginModel) Init() tea.Cmd {
 	return tea.Batch(
 		m.spinner.Tick,
 		func() tea.Msg {
@@ -155,7 +155,7 @@ func (m AccountModel) Init() tea.Cmd {
 	)
 }
 
-func (m AccountModel) View() string {
+func (m LoginModel) View() string {
 	var b strings.Builder
 	b.WriteString(bold("Pilih Akun") + "\n\n")
 	if m.initialized {
@@ -216,7 +216,7 @@ func login(cookie []byte) tea.Cmd {
 	}
 }
 
-func (m AccountModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m LoginModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		if !m.initialized {
