@@ -271,8 +271,8 @@ func waitForMsg(ch <-chan tea.Msg) tea.Cmd {
 func (m *TimerModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case countdownMsg:
-		if msg <= 0 {
-			m.countdownView = "00:00:00"
+		if d := time.Duration(msg); d-*subFSTime <= 0 {
+			m.countdownView = countdownFormat(d)
 			return m, nil
 		}
 		m.countdownView = countdownFormat(time.Duration(msg))

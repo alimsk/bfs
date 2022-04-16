@@ -33,18 +33,25 @@ Kalo kurang jelas bisa cek [video tutorial](https://youtu.be/1fIKouowm_M).
 ### -state
 nama state file.
 
-state file adalah tempat bfs menyimpan akun dan data.
+state file adalah tempat bfs menyimpan akun dan data. (default "bfs_state.json")
 
 ### -d
 delay antar request (pada bagian checkout).  
 bot akan mengirimkan request secara bersamaan, opsi ini mengatur berapa lama harus menunggu sebelum mengirimkan request selanjutnya.
 
-jika disetting ke 0 (default) maka request akan dikirimkan satu-persatu.
+jika disetting ke 0 maka request akan dikirimkan satu-persatu.
 
-contoh:  
-- 10ms
-- 5s
-- 2h
+nilai dapat berisi durasi seperti 1s, 500ms, atau 2m
+
+### -sub
+mengurangi waktu flash sale dengan nilai yg diberikan.  
+misal waktu fs adalah 12:00:00, jika argumen ini 1s maka bot akan mulai checkout pada 11:59:59.  
+karena 12:00:00 - 1s adalah 11:59:59.
+
+nilai dapat berisi durasi seperti 1s, 500ms, atau 2m
+
+### -as
+pilihan user agent, bisa web/android. (default android)
 
 ## Subcommand
 ### info
