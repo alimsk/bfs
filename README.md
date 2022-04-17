@@ -5,7 +5,7 @@ Pembuat bot ini tidak bertanggung jawab jika anda kena banned/blokir shopee
 - Tidak mengandalkan webdriver atau selenium dapat membuat bot lebih cepat & ringan, dan support running di android via Termux
 - Gratis ([donasi](#support))
 - Multi akun
-- Interactive CLI / [Simple](simple-cli)
+- Interactive CLI / [Simple](#simple-cli)
 
 # Install
 ### Termux
@@ -25,7 +25,7 @@ Download file exe nya manual di [release](https://github.com/alimsk/bfs/releases
 
 ## Simple CLI
 Kalo mau running botnya di vps/rdp, mungkin lebih enak menggunakan CLI yg simpel.  
-untuk itu udah saya sediakan, bisa compile sendiri di folder `bfs-simple` (butuh go1.18).
+untuk itu udah saya sediakan, bisa compile sendiri di folder bfs-simple (butuh go1.18).
 
 Versi ini nggak ada bedanya dengan versi yg biasa, kecuali lebih simpel saja.
 
