@@ -170,23 +170,24 @@ func main() {
 	log.SetFlags(log.Ltime | log.Lmicroseconds)
 
 	fstime := time.Unix(item.UpcomingFsaleStartTime(), 0)
-	var params shopee.CheckoutParams
-	var citem shopee.CheckoutableItem
+	citem := shopee.ChooseModel(item, model.ModelID())
+
 	if fstime.After(time.Now()) {
 		log.Println("flash sale pada", fstime.Format("3:04:05 PM"))
 		time.Sleep(time.Until(fstime) - *subFSTime)
 
 		log.Println("start refresh item")
 		item, err = c.FetchItem(item.ShopID(), item.ItemID())
-		citem = shopee.ChooseModel(item, model.ModelID())
-		params = shopee.CheckoutParams{
-			Addr:        addr,
-			Item:        citem,
-			PaymentData: paymentdata,
-			Logistic:    logistic,
-		}
 		fatalIf(err)
 		log.Println("finish refresh item")
+		citem = shopee.ChooseModel(item, model.ModelID())
+	}
+
+	params := shopee.CheckoutParams{
+		Addr:        addr,
+		Item:        citem,
+		PaymentData: paymentdata,
+		Logistic:    logistic,
 	}
 
 	if *delay == 0 {
