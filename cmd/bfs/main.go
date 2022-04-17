@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"math/rand"
 	"os"
 	"os/exec"
 	"runtime"
@@ -40,7 +39,6 @@ func fixTimezone() {
 }
 
 func init() {
-	rand.Seed(time.Now().UnixNano())
 	if runtime.GOOS == "android" {
 		fixTimezone()
 	}
@@ -57,7 +55,7 @@ func main() {
 		case "version":
 			fmt.Println(version, "github.com/alimsk/bfs")
 		default:
-			log.Fatal("Unknown subcommand: ", flag.Arg(0))
+			log.Fatal("unknown subcommand: ", flag.Arg(0))
 		}
 		return
 	}

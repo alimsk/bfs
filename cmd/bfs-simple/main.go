@@ -11,7 +11,11 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"os"
+	"os/exec"
+	"runtime"
 	"strconv"
+	"strings"
+	"sync"
 	"time"
 
 	"github.com/alimsk/shopee"
@@ -20,15 +24,53 @@ import (
 
 var version string
 
+var (
+	delay      = flag.Duration("d", 0, "delay antar request saat checkout")
+	subFSTime  = flag.Duration("sub", 0, "kurangi waktu flash sale")
+	clientType = flag.String("as", "android", "web/android")
+)
+
+// https://github.com/golang/go/issues/20455#issuecomment-342287698
+func fixTimezone() {
+	out, err := exec.Command("/system/bin/getprop", "persist.sys.timezone").Output()
+	if err != nil {
+		return
+	}
+	z, err := time.LoadLocation(strings.TrimSpace(string(out)))
+	if err != nil {
+		return
+	}
+	time.Local = z
+}
+
+func init() {
+	if runtime.GOOS == "android" {
+		fixTimezone()
+	}
+}
+
 func main() {
 	flag.Parse()
 	log.SetFlags(log.Ltime | log.Lmicroseconds)
 
 	if flag.NArg() > 0 {
 		switch flag.Arg(0) {
-		case "login":
+		case "info":
+			itemInfo()
+		case "version":
+			fmt.Println(version, "github.com/alimsk/bfs")
+		default:
+			log.Fatal("unknown subcommand: ", flag.Arg(0))
 		}
 		return
+	}
+
+	switch *clientType {
+	case "web", "android":
+		// OK
+	default:
+		flag.Usage()
+		os.Exit(1)
 	}
 
 	b, err := io.ReadAll(os.Stdin)
@@ -37,7 +79,7 @@ func main() {
 
 	c, err := loginFromCookieJson(b)
 	if err != nil {
-		c, err = shopee.NewFromCookieString(string(b))
+		c, err = shopee.NewFromCookieString(string(b), ternary(*clientType == "android", shopee.WithAndroid, nil))
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -108,22 +150,93 @@ func main() {
 	citem := shopee.ChooseModel(item, model.ModelID())
 	fstime := time.Unix(item.UpcomingFsaleStartTime(), 0)
 	log.Println("flash sale pada", fstime.Format("3:04:05 PM"))
-	log.Println("start validasi checkout")
-	fatalIf(c.ValidateCheckout(citem))
-	log.Println("validasi checkout done")
-	log.Println("start checkout get")
+	time.Sleep(time.Until(fstime) - *subFSTime)
+	var wg sync.WaitGroup
+	wg.Add(3)
+	go func() {
+		log.Println("start validasi checkout")
+		fatalIf(c.ValidateCheckout(citem))
+		log.Println("finish validasi checkout")
+		wg.Done()
+	}()
+	time.Sleep(*delay)
 	params := shopee.CheckoutParams{
 		Addr:        addr,
 		Item:        citem,
 		PaymentData: paymentdata,
 		Logistic:    logistic,
 	}.WithTimestamp(time.Now().Unix())
-	_, err = c.CheckoutGetQuick(params)
-	fatalIf(err)
-	log.Println("checkout get done")
-	log.Println("start place order")
-	fatalIf(c.PlaceOrder(params))
-	log.Println("place order done")
+	go func() {
+		log.Println("start checkout get")
+		_, err = c.CheckoutGetQuick(params)
+		fatalIf(err)
+		log.Println("finish checkout get")
+		wg.Done()
+	}()
+	time.Sleep(*delay)
+	go func() {
+		log.Println("start place order")
+		fatalIf(c.PlaceOrder(params))
+		log.Println("finish place order")
+		wg.Done()
+	}()
+	wg.Wait()
+}
+
+func itemInfo() {
+	urlstr := flag.Arg(1)
+
+	c, err := shopee.NewFromCookieString("csrftoken=" + randstr(32))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	item, err := c.FetchItemFromURL(urlstr)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fsalestatus := "tidak ada"
+	if item.IsFlashSale() {
+		fsalestatus = "sedang berlangsung"
+	} else if item.HasUpcomingFsale() {
+		fsalestatus = "pada jam " + time.Unix(item.UpcomingFsaleStartTime(), 0).Format("3:04:05 PM")
+	}
+
+	m := [...]struct {
+		k string
+		v interface{}
+	}{
+		{"Flashsale", fsalestatus},
+		{"Harga", formatPrice(item.Price())},
+		{"Stok", item.Stock()},
+		{"Kategori", strings.Join(item.CatNames(), ", ")},
+		{"Shopid", item.ShopID()},
+		{"Itemid", item.ItemID()},
+	}
+
+	var longestkey int
+	for _, v := range m {
+		if len(v.k) > longestkey {
+			longestkey = len(v.k)
+		}
+	}
+
+	fmt.Println(item.Name())
+	fmt.Println()
+	for _, v := range m {
+		fmt.Printf("%-*s %v\n", longestkey+1, v.k+":", v.v)
+	}
+
+	for _, model := range item.Models() {
+		fmt.Println(
+			"\n"+model.Name(),
+			"\nID:                 ", model.ModelID(),
+			"\nHarga:              ", formatPrice(model.Price()),
+			"\nStok:               ", model.Stock(),
+			"\nFlashsale Mendatang:", ternary(model.HasUpcomingFsale(), "Ya", "Tidak"),
+		)
+	}
 }
 
 func loginFromCookieJson(b []byte) (shopee.Client, error) {
@@ -153,7 +266,7 @@ func loginFromCookieJson(b []byte) (shopee.Client, error) {
 
 	jar, _ := cookiejar.New(nil)
 	jar.SetCookies(shopee.ShopeeUrl, cookies)
-	return shopee.New(jar)
+	return shopee.New(jar, ternary(*clientType == "android", shopee.WithAndroid, nil))
 }
 
 func input(prompt string) string {

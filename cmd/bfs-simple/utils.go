@@ -2,10 +2,15 @@ package main
 
 import (
 	"math/rand"
+	"time"
 
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 )
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
 
 type integer interface {
 	int | int8 | int16 | int32 | int64 | uint | uint8 | uint16 | uint32 | uint64 | uintptr
