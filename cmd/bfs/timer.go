@@ -153,6 +153,7 @@ func (m *TimerModel) checkout() {
 	if !m.item.Item.IsFlashSale() {
 		time.Sleep(time.Until(m.fsale) - *subFSTime)
 		start = time.Now()
+		m.msgch <- taskUpdateMsg{statusRunning}
 		var err error
 		updateditem, err = m.c.FetchItem(m.item.ShopID(), m.item.ItemID())
 		if err != nil {

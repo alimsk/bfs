@@ -27,7 +27,6 @@ var version string
 var (
 	delay      = flag.Duration("d", 0, "delay antar request saat checkout")
 	subFSTime  = flag.Duration("sub", 0, "kurangi waktu flash sale")
-	clientType = flag.String("as", "android", "web/android")
 	cookieFile = flag.String("f", "cookie", "cookie file")
 )
 
@@ -74,14 +73,6 @@ func main() {
 		return
 	}
 
-	switch *clientType {
-	case "web", "android":
-		// OK
-	default:
-		flag.Usage()
-		os.Exit(1)
-	}
-
 	f, err := os.Open(*cookieFile)
 	fatalIf(err)
 
@@ -95,7 +86,7 @@ func main() {
 	if err != nil {
 		log.Println("error:", err)
 		log.Println("parsing cookie string")
-		c, err = shopee.NewFromCookieString(string(b), ternary(*clientType == "android", shopee.WithAndroid, nil))
+		c, err = shopee.NewFromCookieString(string(b))
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -177,16 +168,26 @@ func main() {
 	logistic := logistics[inputint("Pilih: ")]
 
 	log.SetFlags(log.Ltime | log.Lmicroseconds)
-	citem := shopee.ChooseModel(item, model.ModelID())
-	params := shopee.CheckoutParams{
-		Addr:        addr,
-		Item:        citem,
-		PaymentData: paymentdata,
-		Logistic:    logistic,
-	}
+
 	fstime := time.Unix(item.UpcomingFsaleStartTime(), 0)
-	log.Println("flash sale pada", fstime.Format("3:04:05 PM"))
-	time.Sleep(time.Until(fstime) - *subFSTime)
+	var params shopee.CheckoutParams
+	var citem shopee.CheckoutableItem
+	if fstime.After(time.Now()) {
+		log.Println("flash sale pada", fstime.Format("3:04:05 PM"))
+		time.Sleep(time.Until(fstime) - *subFSTime)
+
+		log.Println("start refresh item")
+		item, err = c.FetchItem(item.ShopID(), item.ItemID())
+		citem = shopee.ChooseModel(item, model.ModelID())
+		params = shopee.CheckoutParams{
+			Addr:        addr,
+			Item:        citem,
+			PaymentData: paymentdata,
+			Logistic:    logistic,
+		}
+		fatalIf(err)
+		log.Println("finish refresh item")
+	}
 
 	if *delay == 0 {
 		nodelay(c, citem, params)
@@ -316,7 +317,7 @@ func loginFromCookieJson(b []byte) (shopee.Client, error) {
 
 	jar, _ := cookiejar.New(nil)
 	jar.SetCookies(shopee.ShopeeUrl, cookies)
-	return shopee.New(jar, ternary(*clientType == "android", shopee.WithAndroid, nil))
+	return shopee.New(jar)
 }
 
 func fatalIf(err error) {

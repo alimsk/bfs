@@ -5,7 +5,7 @@ Pembuat bot ini tidak bertanggung jawab jika anda kena banned/blokir shopee
 - Tidak mengandalkan webdriver atau selenium dapat membuat bot lebih cepat & ringan, dan support running di android via Termux
 - Gratis ([donasi](#support))
 - Multi akun
-- Interactive CLI
+- Interactive CLI / [Simple](simple-cli)
 
 # Install
 ### Termux
@@ -23,13 +23,19 @@ curl -L https://github.com/alimsk/bfs/releases/latest/download/bfs-linux-amd64 >
 ### Windows
 Download file exe nya manual di [release](https://github.com/alimsk/bfs/releases/latest)
 
+## Simple CLI
+Kalo mau running botnya di vps/rdp, mungkin lebih enak menggunakan CLI yg simpel.  
+untuk itu udah saya sediakan, bisa compile sendiri di folder `bfs-simple` (butuh go1.18).
+
+Versi ini nggak ada bedanya dengan versi yg biasa, kecuali lebih simpel saja.
+
 # Penggunaan
 Untuk login bisa ambil cookie shopee dari chrome menggunakan ekstensi [Copy Cookies](https://chrome.google.com/webstore/detail/copy-cookies/jcbpglbplpblnagieibnemmkiamekcdg?hl=en),
 lalu pastekan ke textinputnya.
 
 Kalo kurang jelas bisa cek [video tutorial](https://youtu.be/1fIKouowm_M).
 
-## Arguments
+## CLI Arguments
 ### -state
 nama state file.
 
@@ -51,9 +57,6 @@ karena 12:00:00 - 1s adalah 11:59:59.
 Note: jika flash sale sudah dimulai maka opsi ini di abaikan.
 
 nilai dapat berisi durasi seperti 1s, 500ms, atau 2m
-
-### -as
-pilihan user agent, bisa web/android. (default android)
 
 ## Subcommand
 ### info

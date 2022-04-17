@@ -22,7 +22,6 @@ var (
 	stateFilename = flag.String("state", "bfs_state.json", "state file name")
 	delay         = flag.Duration("d", 0, "delay antar request saat checkout")
 	subFSTime     = flag.Duration("sub", 0, "kurangi waktu flash sale")
-	clientType    = flag.String("as", "android", "web/android")
 )
 
 // https://github.com/golang/go/issues/20455#issuecomment-342287698
@@ -58,14 +57,6 @@ func main() {
 			log.Fatal("unknown subcommand: ", flag.Arg(0))
 		}
 		return
-	}
-
-	switch *clientType {
-	case "web", "android":
-		// OK
-	default:
-		flag.Usage()
-		os.Exit(1)
 	}
 
 	if runtime.GOOS == "windows" {
