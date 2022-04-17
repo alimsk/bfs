@@ -1,7 +1,11 @@
 package main
 
 import (
+	"bufio"
+	"fmt"
 	"math/rand"
+	"os"
+	"strconv"
 	"time"
 
 	"golang.org/x/text/language"
@@ -58,4 +62,21 @@ func randstr(n int) string {
 		b[i] = letters[rand.Int63()%int64(len(letters))]
 	}
 	return string(b)
+}
+
+func input(prompt string) string {
+	fmt.Print(prompt)
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	return scanner.Text()
+}
+
+func inputint(prompt string) int {
+	for {
+		inp := input(prompt)
+		if v, err := strconv.Atoi(inp); err == nil {
+			return v
+		}
+		fmt.Println("masukkan angka")
+	}
 }

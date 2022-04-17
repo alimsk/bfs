@@ -1,12 +1,12 @@
 package main
 
 import (
-	"bufio"
 	"bytes"
 	"errors"
 	"flag"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/cookiejar"
@@ -28,6 +28,7 @@ var (
 	delay      = flag.Duration("d", 0, "delay antar request saat checkout")
 	subFSTime  = flag.Duration("sub", 0, "kurangi waktu flash sale")
 	clientType = flag.String("as", "android", "web/android")
+	cookieFile = flag.String("f", "cookie", "cookie file")
 )
 
 // https://github.com/golang/go/issues/20455#issuecomment-342287698
@@ -49,9 +50,17 @@ func init() {
 	}
 }
 
+func cookiesToString(cookies []*http.Cookie) []byte {
+	r, _ := http.NewRequest("", "", nil)
+	for _, cookie := range cookies {
+		r.AddCookie(cookie)
+	}
+	return []byte(r.Header.Get("Cookie"))
+}
+
 func main() {
 	flag.Parse()
-	log.SetFlags(log.Ltime | log.Lmicroseconds)
+	log.SetFlags(0)
 
 	if flag.NArg() > 0 {
 		switch flag.Arg(0) {
@@ -73,17 +82,33 @@ func main() {
 		os.Exit(1)
 	}
 
-	b, err := io.ReadAll(os.Stdin)
+	f, err := os.Open(*cookieFile)
+	fatalIf(err)
+
+	b, err := io.ReadAll(f)
 	fatalfIf("error reading stdin: %v", err)
 	b = bytes.TrimSpace(b)
+	f.Close()
 
+	log.Println("attempting to parse cookie json")
 	c, err := loginFromCookieJson(b)
 	if err != nil {
+		log.Println("error:", err)
+		log.Println("parsing cookie string")
 		c, err = shopee.NewFromCookieString(string(b), ternary(*clientType == "android", shopee.WithAndroid, nil))
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
+
+	acc, err := c.FetchAccountInfo()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer func() {
+		ioutil.WriteFile(*cookieFile, cookiesToString(c.Client.GetClient().Jar.Cookies(shopee.ShopeeUrl)), 0644)
+	}()
+	fmt.Println("login sebagai", acc.Username())
 
 	addrs, err := c.FetchAddresses()
 	fatalIf(err)
@@ -103,21 +128,24 @@ func main() {
 		fmt.Println(i, m.Name())
 		fmt.Println("id:", m.ModelID())
 		fmt.Println("stok:", m.Stock())
-		fmt.Println("harga:", m.Price())
-		fmt.Println("flashsale:", m.HasUpcomingFsale())
+		fmt.Println("harga:", formatPrice(m.Price()))
+		fmt.Println("flashsale mendatang:", m.HasUpcomingFsale())
 	}
-	model := item.Models()[inputint("Pilih:")]
+	fmt.Println()
+	model := item.Models()[inputint("Pilih: ")]
 
 	fmt.Println("\nMetode Pembayaran")
 	for i, ch := range shopee.PaymentChannelList {
 		fmt.Println(i, ch.Name)
 	}
+	fmt.Println()
 	paymentch := shopee.PaymentChannelList[inputint("Pilih: ")]
 	var paymentdata shopee.PaymentChannelData
 	if len(paymentch.Options) > 0 {
 		for i, ch := range paymentch.Options {
 			fmt.Println(i, ch.Name)
 		}
+		fmt.Println()
 		paymentdata = paymentch.ApplyOpt(paymentch.Options[inputint("Pilih:")])
 	} else {
 		paymentdata = paymentch.Apply()
@@ -145,12 +173,26 @@ func main() {
 	for i, logistic := range logistics {
 		fmt.Println(i, logistic.Name())
 	}
+	fmt.Println()
 	logistic := logistics[inputint("Pilih: ")]
 
+	log.SetFlags(log.Ltime | log.Lmicroseconds)
 	citem := shopee.ChooseModel(item, model.ModelID())
+	params := shopee.CheckoutParams{
+		Addr:        addr,
+		Item:        citem,
+		PaymentData: paymentdata,
+		Logistic:    logistic,
+	}
 	fstime := time.Unix(item.UpcomingFsaleStartTime(), 0)
 	log.Println("flash sale pada", fstime.Format("3:04:05 PM"))
 	time.Sleep(time.Until(fstime) - *subFSTime)
+
+	if *delay == 0 {
+		nodelay(c, citem, params)
+		return
+	}
+
 	var wg sync.WaitGroup
 	wg.Add(3)
 	go func() {
@@ -160,12 +202,7 @@ func main() {
 		wg.Done()
 	}()
 	time.Sleep(*delay)
-	params := shopee.CheckoutParams{
-		Addr:        addr,
-		Item:        citem,
-		PaymentData: paymentdata,
-		Logistic:    logistic,
-	}.WithTimestamp(time.Now().Unix())
+	params = params.WithTimestamp(time.Now().Unix())
 	go func() {
 		log.Println("start checkout get")
 		_, err = c.CheckoutGetQuick(params)
@@ -181,6 +218,19 @@ func main() {
 		wg.Done()
 	}()
 	wg.Wait()
+}
+
+func nodelay(c shopee.Client, citem shopee.CheckoutableItem, params shopee.CheckoutParams) {
+	log.Println("start validasi checkout")
+	fatalIf(c.ValidateCheckout(citem))
+	log.Println("finish validasi checkout")
+	log.Println("start checkout get")
+	params, err := c.CheckoutGetQuick(params)
+	fatalIf(err)
+	log.Println("finish checkout get")
+	log.Println("start place order")
+	fatalIf(c.PlaceOrder(params))
+	log.Println("finish place order")
 }
 
 func itemInfo() {
@@ -267,25 +317,6 @@ func loginFromCookieJson(b []byte) (shopee.Client, error) {
 	jar, _ := cookiejar.New(nil)
 	jar.SetCookies(shopee.ShopeeUrl, cookies)
 	return shopee.New(jar, ternary(*clientType == "android", shopee.WithAndroid, nil))
-}
-
-func input(prompt string) string {
-	fmt.Print(prompt)
-	scanner := bufio.NewScanner(os.Stdin)
-	if !scanner.Scan() {
-		log.Fatal(scanner.Err())
-	}
-	return scanner.Text()
-}
-
-func inputint(prompt string) int {
-	for {
-		inp := input(prompt)
-		if v, err := strconv.Atoi(inp); err == nil {
-			return v
-		}
-		fmt.Println("masukkan angka")
-	}
 }
 
 func fatalIf(err error) {
