@@ -79,9 +79,10 @@ Star repo ini dengan menekan tombol <img align="center" src="https://user-images
  di pojok kanan atas.  
 jangan cuma make doang dong, biar sama-sama untung :D
 
-bisa juga donate ke saya via dana
+bisa juga donate ke saya via:
+- Saweria:  https://saweria.co/alimsk
+- Trakteer: https://trakteer.id/ali-m-uqlok/tip
 
-<img src="https://user-images.githubusercontent.com/51353996/158705498-add7da42-1907-43ff-ab80-b2d673f66b3b.png" width="600">
 
 kalo nemu bug atau masalah lain bisa buat issue di halaman [issue](https://github.com/alimsk/bfs/issues).
 
