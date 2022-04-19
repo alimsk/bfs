@@ -7,6 +7,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+var PaymentChannelList = [...]shopee.PaymentChannel{shopee.ShopeePay, shopee.COD, shopee.TransferBank, shopee.Alfamart, shopee.Indomaret}
+
 type PaymentModel struct {
 	c    shopee.Client
 	item shopee.CheckoutableItem
@@ -18,9 +20,9 @@ type PaymentModel struct {
 }
 
 func NewPaymentModel(c shopee.Client, item shopee.CheckoutableItem) PaymentModel {
-	a := make(SingleLineAdapter, len(shopee.PaymentChannelList))
-	for i, p := range shopee.PaymentChannelList {
-		a[i] = [2]string{"> ", p.Name}
+	a := make(SingleLineAdapter, len(PaymentChannelList))
+	for i, p := range PaymentChannelList {
+		a[i] = [2]string{"> ", p.Name()}
 	}
 	l := list.New(a)
 	l.Focus()
@@ -58,14 +60,14 @@ func (m PaymentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "s":
 			m.list.SetItemFocus(m.list.ItemFocus() + 1)
 		case "enter":
-			p := shopee.PaymentChannelList[m.list.ItemFocus()]
+			p := PaymentChannelList[m.list.ItemFocus()]
 
 			if m.hasopt {
-				pdata := p.ApplyOpt(p.Options[m.opts.ItemFocus()])
-				return m, navigator.PushReplacement(NewLogisticModel(m.c, m.item, pdata))
+				opt := p.Options()[m.opts.ItemFocus()].OptionInfo
+				return m, navigator.PushReplacement(NewLogisticModel(m.c, m.item, p, opt))
 			}
 
-			if opts := shopee.PaymentChannelList[m.list.ItemFocus()].Options; len(opts) != 0 {
+			if opts := PaymentChannelList[m.list.ItemFocus()].Options(); len(opts) != 0 {
 				a := make(SingleLineAdapter, len(opts))
 				for i, opt := range opts {
 					a[i] = [2]string{"> ", opt.Name}
@@ -77,7 +79,7 @@ func (m PaymentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			}
 
-			return m, navigator.PushReplacement(NewLogisticModel(m.c, m.item, p.Apply()))
+			return m, navigator.PushReplacement(NewLogisticModel(m.c, m.item, p, ""))
 		case "esc":
 			if m.hasopt {
 				m.opts.Blur()

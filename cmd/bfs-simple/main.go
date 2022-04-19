@@ -126,20 +126,19 @@ func main() {
 	model := item.Models()[inputint("Pilih: ")]
 
 	fmt.Println("\nMetode Pembayaran")
-	for i, ch := range shopee.PaymentChannelList {
+	PaymentChannelList := [...]shopee.PaymentChannel{shopee.ShopeePay, shopee.COD, shopee.TransferBank, shopee.Alfamart, shopee.Indomaret}
+	for i, ch := range PaymentChannelList {
 		fmt.Println(i, ch.Name)
 	}
 	fmt.Println()
-	paymentch := shopee.PaymentChannelList[inputint("Pilih: ")]
-	var paymentdata shopee.PaymentChannelData
-	if len(paymentch.Options) > 0 {
-		for i, ch := range paymentch.Options {
+	paymentch := PaymentChannelList[inputint("Pilih: ")]
+	var paymentOption string
+	if len(paymentch.Options()) > 0 {
+		for i, ch := range paymentch.Options() {
 			fmt.Println(i, ch.Name)
 		}
 		fmt.Println()
-		paymentdata = paymentch.ApplyOpt(paymentch.Options[inputint("Pilih:")])
-	} else {
-		paymentdata = paymentch.Apply()
+		paymentOption = paymentch.Options()[inputint("Pilih:")].OptionInfo
 	}
 
 	fmt.Println("\nmengambil info logistik")
@@ -184,10 +183,11 @@ func main() {
 	}
 
 	params := shopee.CheckoutParams{
-		Addr:        addr,
-		Item:        citem,
-		PaymentData: paymentdata,
-		Logistic:    logistic,
+		Addr:          addr,
+		Item:          citem,
+		Payment:       paymentch,
+		PaymentOption: paymentOption,
+		Logistic:      logistic,
 	}
 
 	if *delay == 0 {

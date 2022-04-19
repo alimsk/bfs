@@ -29,11 +29,12 @@ type Task struct {
 }
 
 type TimerModel struct {
-	c        shopee.Client
-	item     shopee.CheckoutableItem
-	payment  shopee.PaymentChannelData
-	addr     shopee.AddressInfo
-	logistic shopee.LogisticChannelInfo
+	c             shopee.Client
+	item          shopee.CheckoutableItem
+	payment       shopee.PaymentChannel
+	paymentOption string
+	addr          shopee.AddressInfo
+	logistic      shopee.LogisticChannelInfo
 
 	fsale         time.Time
 	countdownCmd  tea.Cmd
@@ -54,7 +55,8 @@ type TimerModel struct {
 func NewTimerModel(
 	c shopee.Client,
 	item shopee.CheckoutableItem,
-	payment shopee.PaymentChannelData,
+	payment shopee.PaymentChannel,
+	paymentOption string,
 	addr shopee.AddressInfo,
 	logistic shopee.LogisticChannelInfo,
 ) *TimerModel {
@@ -188,10 +190,11 @@ func (m *TimerModel) checkout() {
 
 	time.Sleep(*delay)
 	params := shopee.CheckoutParams{
-		Addr:        m.addr,
-		Item:        citem,
-		PaymentData: m.payment,
-		Logistic:    m.logistic,
+		Addr:          m.addr,
+		Item:          citem,
+		Payment:       m.payment,
+		PaymentOption: m.paymentOption,
+		Logistic:      m.logistic,
 	}.WithTimestamp(time.Now().Unix())
 
 	go func() {
@@ -243,10 +246,11 @@ func (m *TimerModel) checkoutNoDelay(updateditem shopee.Item, start time.Time) {
 
 	m.msgch <- taskUpdateMsg{statusRunning}
 	params, err := m.c.CheckoutGetQuick(shopee.CheckoutParams{
-		Addr:        m.addr,
-		Item:        citem,
-		PaymentData: m.payment,
-		Logistic:    m.logistic,
+		Addr:          m.addr,
+		Item:          citem,
+		Payment:       m.payment,
+		PaymentOption: m.paymentOption,
+		Logistic:      m.logistic,
 	})
 	if err != nil {
 		m.msgch <- err

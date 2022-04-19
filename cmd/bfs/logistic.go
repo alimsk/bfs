@@ -12,10 +12,11 @@ import (
 )
 
 type LogisticModel struct {
-	c       shopee.Client
-	item    shopee.CheckoutableItem
-	payment shopee.PaymentChannelData
-	addr    shopee.AddressInfo
+	c             shopee.Client
+	item          shopee.CheckoutableItem
+	payment       shopee.PaymentChannel
+	paymentOption string
+	addr          shopee.AddressInfo
 
 	spinner   spinner.Model
 	list      list.Model
@@ -24,7 +25,7 @@ type LogisticModel struct {
 	logistics []shopee.LogisticChannelInfo
 }
 
-func NewLogisticModel(c shopee.Client, item shopee.CheckoutableItem, payment shopee.PaymentChannelData) LogisticModel {
+func NewLogisticModel(c shopee.Client, item shopee.CheckoutableItem, payment shopee.PaymentChannel, paymentOption string) LogisticModel {
 	sp := spinner.New()
 	sp.Spinner = spinner.Dot
 	return LogisticModel{
@@ -98,7 +99,7 @@ func (m LogisticModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			}
 			return m, navigator.PushAndRemoveUntil(
-				NewTimerModel(m.c, m.item, m.payment, m.addr, lc),
+				NewTimerModel(m.c, m.item, m.payment, m.paymentOption, m.addr, lc),
 				func(int, tea.Model) bool { return false },
 			)
 		}
@@ -135,7 +136,7 @@ func (m LogisticModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Quit
 			}
 			return m, navigator.PushAndRemoveUntil(
-				NewTimerModel(m.c, m.item, m.payment, msg.addr, msg.logistics[0]),
+				NewTimerModel(m.c, m.item, m.payment, m.paymentOption, msg.addr, msg.logistics[0]),
 				func(int, tea.Model) bool { return false },
 			)
 		}
