@@ -161,7 +161,7 @@ func main() {
 
 	fmt.Println("\nChannel Logistik")
 	for i, logistic := range logistics {
-		fmt.Println(i, logistic.Name())
+		fmt.Println(i, logistic.Name(), "|", formatPrice(logistic.PriceBeforeDiscount()))
 	}
 	fmt.Println()
 	logistic := logistics[inputint("Pilih: ")]
