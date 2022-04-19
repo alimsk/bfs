@@ -128,7 +128,7 @@ func main() {
 	fmt.Println("\nMetode Pembayaran")
 	PaymentChannelList := [...]shopee.PaymentChannel{shopee.ShopeePay, shopee.COD, shopee.TransferBank, shopee.Alfamart, shopee.Indomaret}
 	for i, ch := range PaymentChannelList {
-		fmt.Println(i, ch.Name)
+		fmt.Println(i, ch.Name())
 	}
 	fmt.Println()
 	paymentch := PaymentChannelList[inputint("Pilih: ")]
